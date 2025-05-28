@@ -39,7 +39,7 @@ export default function ChooseRoute() {
 
   return (
     <View className="p-6">
-      <Text className="text-xl font-bold mb-4 text-slate-800">Choose Your Route</Text>
+      {/* <Text className="text-xl font-bold mb-4 text-slate-800">Choose Your Route</Text> */}
 
       {driverRoutes && driverRoutes?.map((route) => (
         <TouchableOpacity

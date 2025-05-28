@@ -127,7 +127,20 @@ export const fetchDriverRoutes = async (routeIds: string[]) => {
     .in("id", routeIds);
 
   if (error) {
-    console.error('Failed to fetch driver:', error);
+    console.error('Failed to fetch passenger routes:', error);
+    return;
+  }
+  return data;
+}
+
+export const fetchPassengersDetails = async (guardianId: string) => {
+  const { data, error } = await supabase
+    .from('passenger_routes')
+    .select('id, passenger_name, route_id, driver_id, status')
+    .eq('guardian_id', guardianId)
+
+  if (error) {
+    console.error('Failed to fetch passengers details:', error);
     return;
   }
   return data;

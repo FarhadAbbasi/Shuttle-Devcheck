@@ -65,7 +65,7 @@ export async function getRoutePolyline(start: LatLng, end: LatLng) {
       start_location: start,
       end_location: end,
       polyline,
-      eta_minutes,
+      eta_minutes: eta_minutes || 0,
     };
 
   }

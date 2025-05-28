@@ -1,18 +1,20 @@
 // components/MapRoute.tsx
+import React from 'react';
 import MapboxGL from '@rnmapbox/maps';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import polyline from '@mapbox/polyline'; //npm install @mapbox/polyline  and npm i --save-dev @types/mapbox__polyline (for typescript)
 import { useEffect, useRef, useState } from 'react';
 import { findMatchingRoutes, getRoutePolyline, toCoords } from '@/lib/MapBox';
 import LocationSearchCard from './LocationSearchCard';
-import { fetchDriverLocation, subscribeToDriverLocation } from '@/lib/DatabaseCalls';
+import { fetchDriverLocation, fetchDriverRoutes, subscribeToDriverLocation } from '@/lib/DatabaseCalls';
 import RouteFinderModal from './RouteFinderModal';
 import { LatLng, Route } from '@/lib/types';
 import { router } from 'expo-router';
 import LocationSelector from './LocationSelector';
 import SelectRouteCard from './SelectRouteCard';
-import { useRouteRequestStore } from '@/store/usePassengerStore';
+import { usePassengerStore, useRouteRequestStore } from '@/store/usePassengerStore';
 import StartEndSelector from './StartEndSelector';
+import { FeatureCollection, LineString } from 'geojson';
 
 
 interface PolylinesRoute {
@@ -23,11 +25,14 @@ interface PolylinesRoute {
 };
 
 
-export default function MapRoute({ driverId }: { driverId: string }) {
+export default function MapRoute() {
   const [searchCoords, setSearchCoords] = useState<{ startCoords: LatLng, endCoords: LatLng } | null>(null);
   const [driverLocation, setDriverLocation] = useState<LatLng | null>(null);
+  const { passengers } = usePassengerStore();
+  const driverId = passengers && passengers[0]?.driver_id || passengers && passengers[1]?.driver_id || null; // '14535d97-960f-41d5-b3dc-adcca575f871'
   const cameraRef = useRef<MapboxGL.Camera>(null);
   const [polylinesRoute, setPolylinesRoute] = useState<Route[]>([]);
+  const [newRoute, setNewRoute] = useState<Route[]>([]);
   // const [polylinesRoute, setPolylinesRoute] = useState<Route[]>([{ polyline: 'y~osFf~miV`@b@`@Zp@d@v@^X', start_location: '', end_location: '' }]);
   const [isLoadingRoute, setLoadingRoute] = useState<boolean>(false);
   const [isOpenRouteFinder, setIsOpenRouteFinder] = useState<boolean>(false);
@@ -40,7 +45,7 @@ export default function MapRoute({ driverId }: { driverId: string }) {
     if (!driverId) return
     const getDriverLoc = async () => {
       const data = await fetchDriverLocation(driverId);
-      console.log('Driver Location:', data?.lat, data?.lng);
+      console.log('Driver Location is:', data?.lat, data?.lng);
       setDriverLocation({ lat: data.lat, lng: data.lng });
     }
     getDriverLoc();
@@ -54,6 +59,18 @@ export default function MapRoute({ driverId }: { driverId: string }) {
     return () => unsubscribe(); // ✅ Cleanup on unmount
   }, [driverId]);
 
+
+
+  // Fetch passenger's assigned Routes 
+  useEffect(() => {
+    if (!passengers || !passengers[0]?.route_id) return;
+    const getRoute = async () => {
+      const data = await fetchDriverRoutes([passengers[0].route_id || '']);
+      console.log('Passenger"s Route :', data);
+      if (data) setPolylinesRoute(data);
+    }
+    getRoute();
+  }, [passengers]);
 
 
 
@@ -73,7 +90,7 @@ export default function MapRoute({ driverId }: { driverId: string }) {
       // } else {
       const newRoute = await getRoutePolyline(searchCoords.startCoords, searchCoords.endCoords);
       console.log('New Route : ', newRoute);
-      if (newRoute) setPolylinesRoute([newRoute]);
+      if (newRoute) setNewRoute([newRoute]);
       // }
       setLoadingRoute(false);
     };
@@ -185,32 +202,33 @@ export default function MapRoute({ driverId }: { driverId: string }) {
 
 
   return (
-    <View style={{ flex: 1, marginVertical: 4 }}>
+    <View style={{ flex: 1, marginVertical: 10, borderWidth: 5, borderColor: '#fdd' }}>
 
-      <MapboxGL.MapView style={{ flex: 1 }} styleURL={MapboxGL.StyleURL.Street} >
+      <MapboxGL.MapView style={{ flex: 1 }} styleURL={MapboxGL.StyleURL.Street} logoEnabled={false}
+      >
         <MapboxGL.Camera zoomLevel={12} ref={cameraRef}
           centerCoordinate={driverLocation ? toCoords(driverLocation) : coords} // Default center: I-8 Islamabad
         // centerCoordinate={coords} // Default center: I-8 Islamabad
         />
 
 
-        {dummyRoutes
+        {/* {dummyRoutes
           .filter(route => route.status === 'Available')
-          .map(route => {
+          .map((route, index) => {
             if (!route.polyline) return null; // ⛔ skip empty polylines
             const decoded = polyline.decode(route.polyline);
             if (!decoded || decoded.length < 2) return null; // ⛔ skip if not a valid line
             const coords = decoded.map(([lat, lng]) => [lng, lat]);
 
-            const geojson = {
+            const geojson: FeatureCollection = {
               type: 'FeatureCollection',
               features: [{
                 type: 'Feature',
                 geometry: {
                   type: 'LineString',
                   coordinates: coords
-                },
-                properties: { id: route.id }
+                } as LineString,
+                properties: { id: route.id || `route-${index}` }
               }]
             };
 
@@ -248,42 +266,39 @@ export default function MapRoute({ driverId }: { driverId: string }) {
               </>
             );
           })
-        }
+        } */}
 
         {polylinesRoute &&
           polylinesRoute
             // .filter(route => route.status === 'Available')
-            .map(route => {
+            .map((route, index) => {
               if (!route.polyline) return null; // ⛔ skip empty polylines
               const decoded = polyline.decode(route.polyline);
               if (!decoded || decoded.length < 2) return null; // ⛔ skip if not a valid line
               const coords = decoded.map(([lat, lng]) => [lng, lat]);
 
-              // const coords = polyline
-              //   .decode(route.polyline)
-              //   .map(([lat, lng]) => [lng, lat]);
-              console.log('Polyline Routes start_location:', route?.start_location);
-              const geojson = {
+              const geojson: FeatureCollection = {
                 type: 'FeatureCollection',
                 features: [{
                   type: 'Feature',
                   geometry: {
                     type: 'LineString',
                     coordinates: coords
-                  },
-                  properties: { id: route.id }
+                  } as LineString,
+                  properties: { id: route.id || `route-${index}` }
                 }]
               };
 
               return (
-                <>
-                  <MapboxGL.ShapeSource key={route.id} id={`route-${route.id}`} shape={geojson} >
-                    <MapboxGL.LineLayer id={`line-${route.id}`}
+                <React.Fragment key={`route-${route.id || index}`}>
+                  <MapboxGL.ShapeSource id={`route-${route.id || index}`} shape={geojson}>
+                    <MapboxGL.LineLayer
+                      id={`line-${route.id || index}`}
                       style={{ lineColor: '#3b82f6', lineWidth: 5, lineJoin: 'round' }}
                     />
                   </MapboxGL.ShapeSource>
 
-                  <MapboxGL.PointAnnotation id={`StartLocation-${route.id}`} coordinate={coords[0]} >
+                  <MapboxGL.PointAnnotation id={`StartLocation-${route.id || index}`} coordinate={coords[0]}>
                     <View
                       style={{
                         height: 20,
@@ -295,41 +310,79 @@ export default function MapRoute({ driverId }: { driverId: string }) {
                       }}
                     />
                   </MapboxGL.PointAnnotation>
-                </>
+                </React.Fragment>
+              );
+            })
+        }
+
+        {newRoute &&
+          newRoute
+            // .filter(route => route.status === 'Available')
+            .map((route, index) => {
+              if (!route.polyline) return null; // ⛔ skip empty polylines
+              const decoded = polyline.decode(route.polyline);
+              if (!decoded || decoded.length < 2) return null; // ⛔ skip if not a valid line
+              const coords = decoded.map(([lat, lng]) => [lng, lat]);
+
+              const geojson: FeatureCollection = {
+                type: 'FeatureCollection',
+                features: [{
+                  type: 'Feature',
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: coords
+                  } as LineString,
+                  properties: { id: route.id || `new-route-${index}` }
+                }]
+              };
+
+              return (
+                <React.Fragment key={`new-route-${route.id || index}`}>
+                  <MapboxGL.ShapeSource id={`new-route-${route.id || index}`} shape={geojson}>
+                    <MapboxGL.LineLayer id={`new-line-${route.id || index}`}
+                      style={{ lineColor: '#3bff88', lineWidth: 5, lineJoin: 'round' }}
+                    />
+                  </MapboxGL.ShapeSource>
+
+                  <MapboxGL.PointAnnotation id={`New-StartLocation-${route.id || index}`} coordinate={coords[0]}>
+                    <View
+                      style={{
+                        height: 20,
+                        width: 20,
+                        backgroundColor: '#A800E8',
+                        borderRadius: 15,
+                        borderColor: '#fff',
+                        borderWidth: 3,
+                      }}
+                    />
+                  </MapboxGL.PointAnnotation>
+                </React.Fragment>
               );
             })
         }
 
         {driverLocation &&
-          <MapboxGL.PointAnnotation id="driverLocation" coordinate={toCoords(driverLocation)} >
-            {/* <MapboxGL.PointAnnotation id="driverLocation" coordinate={[-122.084, 37.4219983]} > */}
-
-            <View style={{ backgroundColor: 'white', borderRadius: 30 }} >
-              <Text style={{ color: 'white', fontSize: 30, padding: 4, }}>🚘</Text>
+          <MapboxGL.PointAnnotation id="driverLocation" coordinate={toCoords(driverLocation)}>
+            <View style={{ backgroundColor: 'white', borderRadius: 30 }}>
+              <View style={{ padding: 4 }}>
+                <Text style={{ fontSize: 30 }}>🚘</Text>
+              </View>
             </View>
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                backgroundColor: '#00A8E8',
-                borderRadius: 15,
-                borderColor: '#fff',
-                borderWidth: 5,
-                zIndex: 999,
-              }}
-            />
           </MapboxGL.PointAnnotation>
         }
 
       </MapboxGL.MapView>
 
-      <TouchableOpacity onPress={() => setIsOpenRouteFinder(!isOpenRouteFinder)} className='absolute z-100 top-10 left-2 p-2 bg-green-500 rounded-lg'>
-        <Text className='text-white'> {isOpenRouteFinder ? 'X' : 'Find Route'} </Text> </TouchableOpacity>
-      {isOpenRouteFinder && <LocationSelector onSelectCoords={handleSearch} />}
+      <TouchableOpacity onPress={() => setIsOpenRouteFinder(!isOpenRouteFinder)}
+        style={{ backgroundColor: isOpenRouteFinder ? '#e00' : '#3b82f6' }}
+        className='absolute z-100 top-[-60] right-2 p-2 bg-green-500 shadow-lg rounded-lg'>
+        <Text className='text-white text-lg'> {isOpenRouteFinder ? 'Close X' : 'Find a new Route'} </Text>
+      </TouchableOpacity>
+      {/* {isOpenRouteFinder && <LocationSelector onSelectCoords={handleSearch} />} */}
 
 
 
-      {polylinesRoute && <SelectRouteCard routes={polylinesRoute} />}
+      {newRoute && <SelectRouteCard routes={newRoute} />}
 
 
     </View>

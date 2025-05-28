@@ -10,12 +10,12 @@ const AnimatedImage = ({ children }: { children: React.ReactNode }) => {
       Animated.parallel([
         Animated.sequence([
           Animated.timing(scaleAnim, {
-            toValue: 1.2,
+            toValue: 1,
             duration: 1200,
             useNativeDriver: true,
           }),
           Animated.timing(scaleAnim, {
-            toValue: 1,
+            toValue: 1.2,
             duration: 1200,
             useNativeDriver: true,
           }),

@@ -1,5 +1,5 @@
 // screens/driver-dashboard.tsx
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar } from 'react-native';
 // import { PassengerList } from '@/components/driver/PassengerList';
 // import { CompleteRouteButton } from '@/components/driver/CompleteRou6teButton';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +12,7 @@ import RestartRouteButton from '../components/driver/RestartRouteButton';
 import MapDriver from '../maps/MapDriver';
 import ChooseRoute from '../components/driver/ChooseRoute';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 
 
@@ -22,28 +23,76 @@ export default function DriverDashboard() {
   const { driverDetails, currentRouteId } = useDriverStore();
 
   return (
-    <View className="flex-1 bg-white" >
-      <View className='pt-8 p-6 bg-slate-50 border-b border-slate-300'>
+    <View className="flex-1 bg-white">
+      <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
 
-        <TouchableOpacity onPress={() => router.replace('/dashboard/Admin')} className="absolute top-0 right-10 mt-4 px-4 py-2 bg-slate-800 rounded">
-          <Text className="text-white">Admin Panel</Text>
-        </TouchableOpacity>
-        <Logout />
+      {/* Header Section */}
+      <View className="bg-white px-6 pt-12 pb-4 border-b border-slate-200">
+        <View className="flex-row justify-between items-center mb-4">
+          <View className="flex-row items-center">
+            <View className="w-10 h-10 bg-sky-100 rounded-full items-center justify-center mr-3">
+              <Ionicons name="person" size={24} color="#0284c7" />
+            </View>
+            <View>
+              <Text className="text-xl font-semibold text-slate-800">{profile?.name || 'Driver'}</Text>
+              <Text className="text-sm text-slate-500">Professional Driver</Text>
+            </View>
+          </View>
 
-        <Text className="text-2xl font-semibold text-slate-800 mb-2">Welcome {profile?.name || 'Driver'}  🚐</Text>
-        <Text className="text-base text-slate-500 ">Driver Dashboard</Text>
+          <View className="flex-col space-y-2 gap-2">
+            <Logout />
+            <TouchableOpacity
+              onPress={() => router.replace('/dashboard/Admin')}
+              className="px-3 py-2 bg-slate-100 rounded-lg flex-row items-center"
+            >
+              <Ionicons name="shield-checkmark" size={18} color="#475569" />
+              <Text className="text-slate-700 ml-1">Admin</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Status Card */}
+        {/* <View className="bg-sky-50 rounded-xl p-4 border border-sky-100">
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-sky-800 font-medium">Current Status</Text>
+              <Text className="text-sky-600 text-sm mt-1">
+                {currentRouteId ? 'On Active Route' : 'No Active Route'}
+              </Text>
+            </View>
+            <View className="bg-sky-100 px-3 py-1 rounded-full">
+              <Text className="text-sky-700 text-sm font-medium">
+                {currentRouteId ? 'Active' : 'Standby'}
+              </Text>
+            </View>
+          </View>
+        </View> */}
       </View>
 
-      {currentRouteId ?
-        <>
-          {!isRouteComplete && <PassengerList />}
-          {isRouteComplete && <RestartRouteButton />}
-          <MapDriver />
-        </> :
-
-        <ChooseRoute />
-      }
-
+      {/* Main Content */}
+      <View className="flex-1">
+        {currentRouteId ? (
+          <>
+            {!isRouteComplete && (
+              <View className="flex-1">
+                <PassengerList />
+              </View>
+            )}
+            {isRouteComplete && <RestartRouteButton />}
+            <View className="flex-1">
+              {/* <MapDriver /> */}
+            </View>
+          </>
+        ) : (
+          <View className="flex-1">
+            <View className="bg-white px-4 py-3 border-b border-slate-200">
+              <Text className="text-lg font-semibold text-slate-800">Available Routes</Text>
+              <Text className="text-sm text-slate-500">Select a route to begin your shift</Text>
+            </View>
+            <ChooseRoute />
+          </View>
+        )}
+      </View>
     </View>
   );
 }

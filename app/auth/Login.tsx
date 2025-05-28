@@ -3,10 +3,11 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuthStore } from '../../store/useAuthStore'
 import RedirectOnLogin from './RedirectOnLogin'
+import { ActivityIndicator } from 'react-native';
 
 export default function LoginScreen() {
   const router = useRouter()
-  const { user, signIn, fetchProfile, loading } = useAuthStore ()
+  const { user, signIn, fetchProfile, loading } = useAuthStore()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,9 +18,12 @@ export default function LoginScreen() {
       return;
     }
     try {
+      // console.log('Signing in...')
       await signIn(email, password);
+      // console.log('Fetching profile in...')
       await fetchProfile();
-      if(user) router.replace('/auth/RedirectOnLogin' as any) // or wherever you want to land
+      if (user) router.replace('/auth/RedirectOnLogin' as any) // or wherever you want to land
+      // console.log('Redirecting...')
     } catch (err) {
       Alert.alert('Login failed: Invalid email or password');
     }
@@ -62,28 +66,36 @@ export default function LoginScreen() {
         <TouchableOpacity
           onPress={handleLogin}
           disabled={loading}
-          className={`mt-4 py-3 rounded-xl bg-black dark:bg-white ${
-            loading ? 'opacity-50' : ''
-          }`}
+          className={`mt-4 py-3 rounded-xl bg-black dark:bg-white ${loading ? 'opacity-50' : ''
+            }`}
         >
-          <Text className="text-center text-white dark:text-black font-semibold text-base">
-            {loading ? 'Logging in...' : 'Login'}
-          </Text>
+          {loading ? (
+            <View className="flex-row justify-center items-center">
+              <ActivityIndicator size="small" color="#fff" />
+              <Text className="text-center text-white dark:text-black font-semibold text-base ml-2">
+                Logging in...
+              </Text>
+            </View>
+          ) : (
+            <Text className="text-center text-white dark:text-black font-semibold text-base">
+              Login
+            </Text>
+          )}
         </TouchableOpacity>
 
-        <Text
-          onPress={() => router.push('/auth/Signup')}
-          className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4"
-        >
-          Don’t have an account?{'  '}
-          <Text className="mx-2 text-blue-600 dark:text-blue-400 font-medium">
-            Sign up
-          </Text>
+      <Text
+        onPress={() => router.push('/auth/Signup')}
+        className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4"
+      >
+        Don’t have an account?{'  '}
+        <Text className="mx-2 text-blue-600 dark:text-blue-400 font-medium">
+          Sign up
         </Text>
+      </Text>
 
-        <RedirectOnLogin />
+      <RedirectOnLogin />
 
-      </View>
     </View>
+    </View >
   )
 }

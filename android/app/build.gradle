@@ -149,6 +149,10 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    
+    // These are Added manually for expo-updates package
+    implementation 'expo.modules:expo-updates-interface:0.13.1'
+    implementation 'expo.modules:expo-updates:0.17.0'
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
@@ -174,4 +178,3 @@ dependencies {
         implementation jscFlavor
     }
 }
-

@@ -3,12 +3,14 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'reac
 import { useAuthStore } from '../../store/useAuthStore'
 import { router } from 'expo-router';
 import RedirectOnLogin from './RedirectOnLogin';
+import { useProfileStore } from '@/store/profileStore';
 // import { styled } from 'nativewind';
 
 
 
 export default function Signup() {
   const { user, signUp, fetchProfile, loading } = useAuthStore()
+  const { profile } = useProfileStore();
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -23,7 +25,7 @@ export default function Signup() {
     try {
       await signUp(name, email, password, phone, role);
       await fetchProfile();
-      if(user) router.replace('/auth/RedirectOnLogin' as any) // or wherever you want to land
+      if(profile) router.replace('/auth/RedirectOnLogin' as any) // or wherever you want to land
       // router.push('/main/Home')
     } catch (err) {
       console.error('Signup failed:', err)

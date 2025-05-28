@@ -51,7 +51,7 @@ const RouteFinderModal: React.FC<Props> = ({ start, end, onClose, onSelectRoute 
           zoomLevel={10}
           centerCoordinate={[start.lng, start.lat]}
         />
-        { routes ? routes?.map((route, index) => (
+        {routes?.map((route, index) => (
           <MapboxGL.ShapeSource
             id={`route-${index}`}
             key={index}
@@ -60,7 +60,6 @@ const RouteFinderModal: React.FC<Props> = ({ start, end, onClose, onSelectRoute 
               geometry: {
                 type: 'LineString',
                 coordinates: decodePolyline(route.polyline),
-                // coordinates: decodePolyline(route.geometry),
               },
             }}
           >
@@ -72,26 +71,27 @@ const RouteFinderModal: React.FC<Props> = ({ start, end, onClose, onSelectRoute 
               }}
             />
           </MapboxGL.ShapeSource>
-        )) : <></>
-      }
+        ))}
       </MapboxGL.MapView>
 
       {/* Overlay Panel */}
-      <View className="absolute bottom-0 w-full bg-white rounded-t-2xl shadow-lg p-4 max-h-1/2">
+      <View className="absolute bottom-0 left-0 right-0 bg-white p-4 rounded-t-xl shadow-lg">
         <View className="flex-row justify-between items-center mb-2">
           <Text className="text-lg font-bold">Matching Routes</Text>
           <TouchableOpacity onPress={onClose}>
-            <Text> X  </Text>            
+            <Text className="text-lg font-semibold">✕</Text>
           </TouchableOpacity>
         </View>
 
         {loading ? (
-          <Text className="text-center text-gray-500">Searching for routes...</Text>
+          <View className="py-4">
+            <Text className="text-center text-gray-500">Searching for routes...</Text>
+          </View>
         ) : (
           <ScrollView horizontal className="space-x-2">
             {routes?.map((route, i) => (
               <TouchableOpacity
-                key={i}
+                key={`route-${i}`}
                 className="bg-gray-100 p-3 rounded-xl w-64"
                 onPress={() => onSelectRoute(route)}
               >
@@ -99,13 +99,13 @@ const RouteFinderModal: React.FC<Props> = ({ start, end, onClose, onSelectRoute 
                   {route.status === 'Available' ? 'Available Route' : 'New Proposed Route'}
                 </Text>
                 <Text className="text-sm text-gray-600 mt-1">
-                  ETA: {route.eta ?? 'N/A'} mins
+                  ETA: {route.eta_minutes ?? 'N/A'} mins
                 </Text>
                 <Text className="text-xs text-gray-500 mt-1">
-                  From: {route.start_location.lat.toFixed(3)}, {route.start_location.lng.toFixed(3)}
+                  From: {route.start_location?.lat?.toFixed(3) ?? 'N/A'}, {route.start_location?.lng?.toFixed(3) ?? 'N/A'}
                 </Text>
                 <Text className="text-xs text-gray-500">
-                  To: {route.end_location.lat.toFixed(3)}, {route.end_location.lng.toFixed(3)}
+                  To: {route.end_location?.lat?.toFixed(3) ?? 'N/A'}, {route.end_location?.lng?.toFixed(3) ?? 'N/A'}
                 </Text>
               </TouchableOpacity>
             ))}

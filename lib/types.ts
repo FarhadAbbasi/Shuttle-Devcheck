@@ -1,4 +1,3 @@
-
 export interface Profile {
     id: string
     name: string
@@ -45,10 +44,10 @@ export interface Route {
     id?: string;
     name?: string;
     driver_id?: string;
-    vehicle_info?: any;
-    start_location: any; // Replace with LatLng type if needed
-    end_location: any;
-    stops?: any[];
+    vehicle_info?: VehicleInfo;
+    start_location: LatLng;
+    end_location: LatLng;
+    stops?: LatLng[];
     passengers?: {
         name: string;
         school: string;
@@ -57,10 +56,12 @@ export interface Route {
     route_days?: string[];
     polyline: any;
     eta_minutes?: number;
-    status?: string;
+    status?: 'Available' | 'Booked' | 'Premature';
     created_at?: string;
     updated_at?: string;
 }
+
+
 
 export interface RideRequest {
     id: string;
@@ -89,9 +90,15 @@ type PassengerStatus = 'Waiting' | 'Onboarded' | 'Offboarded' | 'Absent';
 export type Passenger = {
   id: string;
   passenger_name: string;
-  start_location?: [number, number];
-  end_location?: [number, number];
+  route_id?: string;
+  driver_id?: string;
+  start_location?: LatLng;
+  end_location?: LatLng;
   status?: PassengerStatus;
+  passenger_details?: {
+    school?: string;
+    address?: string;
+  };
 };
 
 

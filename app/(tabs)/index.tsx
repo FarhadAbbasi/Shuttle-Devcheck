@@ -94,37 +94,20 @@ import LoginScreen from '../auth/Login';
 import { Link } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedLogo from '../components/AnimatedLogo';
+import UpdateCheck from './UpdateCheck';
 
 const { width } = Dimensions.get('window');
 
 
 export default function HomeScreen() {
 
-  const shineAnim = useRef(new Animated.Value(-200)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(shineAnim, {
-          toValue: width,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shineAnim, {
-          toValue: -200,
-          duration: 0,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
-
   return (
     <View className='bg-slate-200 flex h-screen flex-1 items-center justify-center'>
       {/* <View style={{ flex: 1, backgroundColor: '#1e293b', alignItems: 'center', justifyContent: 'center' }}>  */}
 
       <AnimatedLogo>
-        <Image source={require('../../assets/images/shuttle_logo_1b.png')} className='w-60 h-24 rounded-lg' />
+        {/* <Image source={require('../../assets/images/shuttle_logo_1b.png')} className='w-60 h-24 rounded-lg' /> */}
+        <Image source={require('../../assets/images/shuttle_logo_2_png.png')} className='w-60 h-40 rounded-lg' />
       </AnimatedLogo>
 
       <Link href="/auth/Login" asChild>
@@ -133,9 +116,14 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </Link>
 
+      <UpdateCheck/>
+
     </View>
   );
 
+
+
+  
   // return (
   //   <ParallaxScrollView
   //     headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}

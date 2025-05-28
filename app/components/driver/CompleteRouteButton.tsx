@@ -1,26 +1,26 @@
 // components/driver/CompleteRouteButton.tsx
 import { View, TouchableOpacity, Text } from 'react-native';
-import { Passenger, useDriverRouteStore } from '@/store/useDriverStore';
+import { useDriverRouteStore } from '@/store/useDriverStore';
 import React from 'react';
 import clsx from 'clsx';
 
 
-const mockPassengers: Passenger[] = [
-  {
-    id: 'p1',
-    name: 'Alice',
-    start_location: [24.925, 67.082],
-    end_location: [24.943, 67.121],
-    status: 'Waiting',
-  },
-  {
-    id: 'p2',
-    name: 'Bob',
-    start_location: [24.911, 67.050],
-    end_location: [24.950, 67.100],
-    status: 'Waiting',
-  },
-];
+// const mockPassengers: Passenger[] = [
+//   {
+//     id: 'p1',
+//     name: 'Alice',
+//     start_location: [24.925, 67.082],
+//     end_location: [24.943, 67.121],
+//     status: 'Waiting',
+//   },
+//   {
+//     id: 'p2',
+//     name: 'Bob',
+//     start_location: [24.911, 67.050],
+//     end_location: [24.950, 67.100],
+//     status: 'Waiting',
+//   },
+// ];
 
 
 export const CompleteRouteButton: React.FC = () => {
