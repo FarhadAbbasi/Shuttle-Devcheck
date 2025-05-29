@@ -169,7 +169,6 @@ export default function MapRoute() {
 
 
 
-
   // Center to a route when tapped (in the future)
   function zoomToRoute(route: any) {
     const routeBounds = route.bounds;
@@ -184,93 +183,20 @@ export default function MapRoute() {
   }
 
 
-  // const routeBounds = {
-  //   sw: [73.0685, 33.6669],  // bottom-left
-  //   ne: [73.0713, 33.7043],  // top-right
-  // };
-  // useEffect(() => {
-  //   if (routeBounds) {
-  //     cameraRef.current?.fitBounds(
-  //       routeBounds.sw,
-  //       routeBounds.ne,
-  //       100,    // padding
-  //       1000    // animation duration (ms)
-  //     );
-  //   }
-  // }, [routeBounds]);
-
 
 
   return (
     <View style={{ flex: 1, marginVertical: 10, borderWidth: 5, borderColor: '#fdd' }}>
 
-      <MapboxGL.MapView style={{ flex: 1 }} styleURL={MapboxGL.StyleURL.Street} logoEnabled={false}
-      >
-        <MapboxGL.Camera zoomLevel={12} ref={cameraRef}
-          centerCoordinate={driverLocation ? toCoords(driverLocation) : coords} // Default center: I-8 Islamabad
-        // centerCoordinate={coords} // Default center: I-8 Islamabad
-        />
+      {MapboxGL.MapView ? (
+        <MapboxGL.MapView style={{ flex: 1 }} styleURL={MapboxGL.StyleURL.Street} logoEnabled={false}
+        >
+          <MapboxGL.Camera zoomLevel={12} ref={cameraRef}
+            centerCoordinate={driverLocation ? toCoords(driverLocation) : coords} // Default center: I-8 Islamabad
+          />
 
-
-        {/* {dummyRoutes
-          .filter(route => route.status === 'Available')
-          .map((route, index) => {
-            if (!route.polyline) return null; // ⛔ skip empty polylines
-            const decoded = polyline.decode(route.polyline);
-            if (!decoded || decoded.length < 2) return null; // ⛔ skip if not a valid line
-            const coords = decoded.map(([lat, lng]) => [lng, lat]);
-
-            const geojson: FeatureCollection = {
-              type: 'FeatureCollection',
-              features: [{
-                type: 'Feature',
-                geometry: {
-                  type: 'LineString',
-                  coordinates: coords
-                } as LineString,
-                properties: { id: route.id || `route-${index}` }
-              }]
-            };
-
-            return (
-              <>
-                <MapboxGL.ShapeSource key={route.id} id={`route-${route.id}`} shape={geojson} >
-                  <MapboxGL.LineLayer id={`line-${route.id}`}
-                    style={{ lineColor: '#3b82f6', lineWidth: 5, lineJoin: 'round' }}
-                  />
-                </MapboxGL.ShapeSource>
-                <MapboxGL.PointAnnotation id={`Start-Location-${route.id}`} coordinate={coords[0]} >
-                  <View
-                    style={{
-                      height: 20,
-                      width: 20,
-                      backgroundColor: '#A800E8',
-                      borderRadius: 15,
-                      borderColor: '#fff',
-                      borderWidth: 3,
-                    }}
-                  />
-                </MapboxGL.PointAnnotation>
-                <MapboxGL.PointAnnotation id={`End-Location-${route.id}`} coordinate={coords[coords.length - 1]} >
-                  <View
-                    style={{
-                      height: 20,
-                      width: 20,
-                      backgroundColor: '#A800E8',
-                      borderRadius: 15,
-                      borderColor: '#fff',
-                      borderWidth: 3,
-                    }}
-                  />
-                </MapboxGL.PointAnnotation>
-              </>
-            );
-          })
-        } */}
-
-        {polylinesRoute &&
-          polylinesRoute
-            // .filter(route => route.status === 'Available')
+          {/* {dummyRoutes
+            .filter(route => route.status === 'Available')
             .map((route, index) => {
               if (!route.polyline) return null; // ⛔ skip empty polylines
               const decoded = polyline.decode(route.polyline);
@@ -290,15 +216,13 @@ export default function MapRoute() {
               };
 
               return (
-                <React.Fragment key={`route-${route.id || index}`}>
-                  <MapboxGL.ShapeSource id={`route-${route.id || index}`} shape={geojson}>
-                    <MapboxGL.LineLayer
-                      id={`line-${route.id || index}`}
+                <>
+                  <MapboxGL.ShapeSource key={route.id} id={`route-${route.id}`} shape={geojson} >
+                    <MapboxGL.LineLayer id={`line-${route.id}`}
                       style={{ lineColor: '#3b82f6', lineWidth: 5, lineJoin: 'round' }}
                     />
                   </MapboxGL.ShapeSource>
-
-                  <MapboxGL.PointAnnotation id={`StartLocation-${route.id || index}`} coordinate={coords[0]}>
+                  <MapboxGL.PointAnnotation id={`Start-Location-${route.id}`} coordinate={coords[0]} >
                     <View
                       style={{
                         height: 20,
@@ -310,41 +234,7 @@ export default function MapRoute() {
                       }}
                     />
                   </MapboxGL.PointAnnotation>
-                </React.Fragment>
-              );
-            })
-        }
-
-        {newRoute &&
-          newRoute
-            // .filter(route => route.status === 'Available')
-            .map((route, index) => {
-              if (!route.polyline) return null; // ⛔ skip empty polylines
-              const decoded = polyline.decode(route.polyline);
-              if (!decoded || decoded.length < 2) return null; // ⛔ skip if not a valid line
-              const coords = decoded.map(([lat, lng]) => [lng, lat]);
-
-              const geojson: FeatureCollection = {
-                type: 'FeatureCollection',
-                features: [{
-                  type: 'Feature',
-                  geometry: {
-                    type: 'LineString',
-                    coordinates: coords
-                  } as LineString,
-                  properties: { id: route.id || `new-route-${index}` }
-                }]
-              };
-
-              return (
-                <React.Fragment key={`new-route-${route.id || index}`}>
-                  <MapboxGL.ShapeSource id={`new-route-${route.id || index}`} shape={geojson}>
-                    <MapboxGL.LineLayer id={`new-line-${route.id || index}`}
-                      style={{ lineColor: '#3bff88', lineWidth: 5, lineJoin: 'round' }}
-                    />
-                  </MapboxGL.ShapeSource>
-
-                  <MapboxGL.PointAnnotation id={`New-StartLocation-${route.id || index}`} coordinate={coords[0]}>
+                  <MapboxGL.PointAnnotation id={`End-Location-${route.id}`} coordinate={coords[coords.length - 1]} >
                     <View
                       style={{
                         height: 20,
@@ -356,29 +246,153 @@ export default function MapRoute() {
                       }}
                     />
                   </MapboxGL.PointAnnotation>
-                </React.Fragment>
+                </>
               );
             })
-        }
+          } */}
 
-        {driverLocation &&
-          <MapboxGL.PointAnnotation id="driverLocation" coordinate={toCoords(driverLocation)}>
-            <View style={{ backgroundColor: 'white', borderRadius: 30 }}>
-              <View style={{ padding: 4 }}>
-                <Text style={{ fontSize: 30 }}>🚘</Text>
+          {polylinesRoute &&
+            polylinesRoute
+              // .filter(route => route.status === 'Available')
+              .map((route, index) => {
+                if (!route.polyline) return null; // ⛔ skip empty polylines
+                const decoded = polyline.decode(route.polyline);
+                if (!decoded || decoded.length < 2) return null; // ⛔ skip if not a valid line
+                const coords = decoded.map(([lat, lng]) => [lng, lat]);
+
+                const geojson: FeatureCollection = {
+                  type: 'FeatureCollection',
+                  features: [{
+                    type: 'Feature',
+                    geometry: {
+                      type: 'LineString',
+                      coordinates: coords
+                    } as LineString,
+                    properties: { id: route.id || `route-${index}` }
+                  }]
+                };
+
+                return (
+                  <React.Fragment key={`route-${route.id || index}`}>
+                    <MapboxGL.ShapeSource id={`route-${route.id || index}`} shape={geojson}>
+                      <MapboxGL.LineLayer
+                        id={`line-${route.id || index}`}
+                        style={{ lineColor: '#3b82f6', lineWidth: 5, lineJoin: 'round' }}
+                      />
+                    </MapboxGL.ShapeSource>
+
+                    <MapboxGL.PointAnnotation id={`StartLocation-${route.id || index}`} coordinate={coords[0]}>
+                      <View
+                        style={{
+                          height: 20,
+                          width: 20,
+                          backgroundColor: '#A800E8',
+                          borderRadius: 15,
+                          borderColor: '#fff',
+                          borderWidth: 3,
+                        }}
+                      />
+                    </MapboxGL.PointAnnotation>
+                    <MapboxGL.PointAnnotation id={`StartLocation-${route.id || index}`} coordinate={coords[coords.length - 1]}>
+                      <View
+                        style={{
+                          height: 20,
+                          width: 20,
+                          backgroundColor: '#A800E8',
+                          borderRadius: 15,
+                          borderColor: '#fff',
+                          borderWidth: 3,
+                        }}
+                      />
+                    </MapboxGL.PointAnnotation>
+
+                  </React.Fragment>
+                );
+              })
+          }
+
+          {newRoute &&
+            newRoute
+              // .filter(route => route.status === 'Available')
+              .map((route, index) => {
+                if (!route.polyline) return null; // ⛔ skip empty polylines
+                const decoded = polyline.decode(route.polyline);
+                if (!decoded || decoded.length < 2) return null; // ⛔ skip if not a valid line
+                const coords = decoded.map(([lat, lng]) => [lng, lat]);
+
+                const geojson: FeatureCollection = {
+                  type: 'FeatureCollection',
+                  features: [{
+                    type: 'Feature',
+                    geometry: {
+                      type: 'LineString',
+                      coordinates: coords
+                    } as LineString,
+                    properties: { id: route.id || `new-route-${index}` }
+                  }]
+                };
+
+                return (
+                  <React.Fragment key={`new-route-${route.id || index}`}>
+                    <MapboxGL.ShapeSource id={`new-route-${route.id || index}`} shape={geojson}>
+                      <MapboxGL.LineLayer id={`new-line-${route.id || index}`}
+                        style={{ lineColor: '#3bff88', lineWidth: 5, lineJoin: 'round' }}
+                      />
+                    </MapboxGL.ShapeSource>
+
+                    <MapboxGL.PointAnnotation id={`New-StartLocation-${route.id || index}`} coordinate={coords[0]}>
+                      <View
+                        style={{
+                          height: 20,
+                          width: 20,
+                          backgroundColor: '#A800E8',
+                          borderRadius: 15,
+                          borderColor: '#fff',
+                          borderWidth: 3,
+                        }}
+                      />
+                    </MapboxGL.PointAnnotation>
+                    <MapboxGL.PointAnnotation id={`StartLocation-${route.id || index}`} coordinate={coords[coords.length - 1]}>
+                      <View
+                        style={{
+                          height: 20,
+                          width: 20,
+                          backgroundColor: '#A800E8',
+                          borderRadius: 15,
+                          borderColor: '#fff',
+                          borderWidth: 3,
+                        }}
+                      />
+                    </MapboxGL.PointAnnotation>
+                  </React.Fragment>
+                );
+              })
+          }
+
+          {driverLocation &&
+            <MapboxGL.PointAnnotation id="driverLocation" coordinate={toCoords(driverLocation)}>
+              <View style={{ backgroundColor: 'yellow', borderRadius: 30 }}>
+                <View style={{ padding: 2 }}>
+                  <Text style={{ fontSize: 24 }}>🚘</Text>
+                </View>
               </View>
-            </View>
-          </MapboxGL.PointAnnotation>
-        }
+            </MapboxGL.PointAnnotation>
+          }
 
-      </MapboxGL.MapView>
+
+
+
+        </MapboxGL.MapView>
+      ) : (
+        <Text>Mapbox failed to load</Text>
+      )}
 
       <TouchableOpacity onPress={() => setIsOpenRouteFinder(!isOpenRouteFinder)}
         style={{ backgroundColor: isOpenRouteFinder ? '#e00' : '#3b82f6' }}
         className='absolute z-100 top-[-60] right-2 p-2 bg-green-500 shadow-lg rounded-lg'>
         <Text className='text-white text-lg'> {isOpenRouteFinder ? 'Close X' : 'Find a new Route'} </Text>
       </TouchableOpacity>
-      {/* {isOpenRouteFinder && <LocationSelector onSelectCoords={handleSearch} />} */}
+      {isOpenRouteFinder && <LocationSelector onSelectCoords={handleSearch} />}
 
 
 
@@ -388,6 +402,8 @@ export default function MapRoute() {
     </View>
   );
 }
+
+
 
 
 

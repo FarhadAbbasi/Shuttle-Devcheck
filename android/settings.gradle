@@ -24,6 +24,22 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 rootProject.name = 'devcheck'
 
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    // repositoriesMode.set(RepositoriesMode.PREFER_PROJECT_REPOS)
+    repositories {
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            credentials {
+                username = 'mapbox'
+                password = providers.gradleProperty('MAPBOX_DOWNLOADS_TOKEN').orNull
+	//         password = project.hasProperty('MAPBOX_DOWNLOADS_TOKEN') ? project.MAPBOX_DOWNLOADS_TOKEN : ""
+            }
+        }
+        google()
+        mavenCentral()
+        maven { url 'https://www.jitpack.io' }
+    }
+
   versionCatalogs {
     reactAndroidLibs {
       from(files(new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), "../gradle/libs.versions.toml")))

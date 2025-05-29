@@ -94,7 +94,8 @@ import LoginScreen from '../auth/Login';
 import { Link } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedLogo from '../components/AnimatedLogo';
-import UpdateCheck from './UpdateCheck';
+import UpdateCheck from '../lib/UpdateCheck';
+import UpdateStatus from '../lib/UpdateCheck';
 
 const { width } = Dimensions.get('window');
 
@@ -112,11 +113,9 @@ export default function HomeScreen() {
 
       <Link href="/auth/Login" asChild>
         <TouchableOpacity className="mt-4 px-4 py-2 bg-blue-500 rounded">
-          <Text className="text-white">Go to the Dashboard</Text>
+          <Text className="text-white">Go to the User Dashboard</Text>
         </TouchableOpacity>
       </Link>
-
-      <UpdateCheck/>
 
     </View>
   );
