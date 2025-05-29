@@ -93,6 +93,11 @@ export default function DriverDashboard() {
           </View>
         )}
       </View>
+
+      <View className="absolute z-100 bottom-0 left-0 right-0 bg-white p-4 border-t border-slate-200">
+        <MapDriver />
+      </View>
+
     </View>
   );
 }
